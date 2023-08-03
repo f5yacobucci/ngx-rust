@@ -6,7 +6,9 @@ use ngx::ffi::{
 };
 use ngx::http::MergeConfigError;
 use ngx::{core, core::Status, http, http::HTTPModule};
-use ngx::{http_request_handler, ngx_log_debug_http, ngx_modules, ngx_null_command, ngx_string};
+use ngx::{http_request_handler, /*ngx_log_debug_http,*/ ngx_modules, ngx_null_command, ngx_string};
+use ngx::ngx_log_debug_mask;
+use ngx::log::DebugMask;
 use std::os::raw::{c_char, c_void};
 
 struct Module;
@@ -107,7 +109,8 @@ http_request_handler!(curl_access_handler, |request: &mut http::Request| {
     let co = unsafe { request.get_module_loc_conf::<ModuleConfig>(&ngx_http_curl_module) };
     let co = co.expect("module config is none");
 
-    ngx_log_debug_http!(request, "curl module enabled: {}", co.enable);
+    //ngx_log_debug_http!(request, "curl module enabled: {}", co.enable);
+    ngx_log_debug_mask!(DebugMask::Http, request.log(), "curl module enabled: {}", co.enable);
 
     match co.enable {
         true => {
